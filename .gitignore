@@ -4,7 +4,6 @@ logs/
 *.h5
 results/
 temp/
-test/
 coco_dataset/
 pycocotools/
 
