@@ -15,14 +15,14 @@ from skimage.morphology import closing, square
 from skimage.measure import regionprops
 from skimage.color import label2rgb
 
-xareaList = []
+areaList = []
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6, 6))
+print sys.argv[1]
 
-
-for filepath in glob.iglob('./*.png'):
+for filepath in glob.iglob(sys.argv[1] + '/*predict*.png'):
     fname = filepath
-
+    print fname
     image = scipy.misc.imread(fname)  # gray-scale image
     # threshold = 1
     #
@@ -63,4 +63,4 @@ for filepath in glob.iglob('./*.png'):
     ax2.clear()
 
 input("Press Enter to continue...")
-
+sys.exit()
