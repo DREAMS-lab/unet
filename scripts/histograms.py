@@ -19,25 +19,22 @@ areaList = []
 orientationList = []
 
 fig, (ax1, ax3,ax2) = plt.subplots(1, 3, figsize=(6, 6))
-print sys.argv[1]
 
 for filepath in glob.iglob(sys.argv[1] + '/*predict*.png'):
     fname = filepath
-    print fname
     image = scipy.misc.imread(fname)  # gray-scale image
     thresh = threshold_otsu(image)
     bw = closing(image > thresh, square(2))
     cleared = bw.copy()
     clear_border(cleared)
 
-    label_image = label(cleared)
+    label_image = label(bw)
     borders = np.logical_xor(bw, cleared)
-    #label_image[borders] = -1
     image_label_overlay = label2rgb(label_image, image=image)
     ax1.imshow(image_label_overlay)
     ax3.imshow(image)
     for region in regionprops(label_image):
-        if region.area < 1:
+        if region.area < 10:
             continue
         areaList.append(region.area)
         minr, minc, maxr, maxc = region.bbox
@@ -65,7 +62,7 @@ for filepath in glob.iglob(sys.argv[1] + '/*predict*.png'):
 
     bins = np.arange(0, 6000, 500)  # fixed bin size
     ax2.hist(map(int, areaList), bins=bins, alpha=0.5)
-    #plt.polar(orientationList, areaList)
+    #ax2.hist(map(float, orientationList),bins=np.arange(-2, 2, 0.8))
     plt.pause(0.001)
     ax1.clear()
     ax2.clear()
