@@ -17,11 +17,12 @@ from skimage.color import label2rgb
 
 areaList = []
 orientationList = []
+N = int(sys.argv[1])
 
 fig, (ax1, ax3,ax2) = plt.subplots(1, 3, figsize=(6, 6))
 
-for filepath in glob.iglob(sys.argv[1] + '/*predict*.png'):
-    fname = filepath
+for i in range(1,N):
+    fname = sys.argv[2] + '/' + str(i) + '_predict.png'
     image = scipy.misc.imread(fname)  # gray-scale image
     thresh = threshold_otsu(image)
     bw = closing(image > thresh, square(2))
@@ -33,10 +34,11 @@ for filepath in glob.iglob(sys.argv[1] + '/*predict*.png'):
     image_label_overlay = label2rgb(label_image, image=image)
     ax1.imshow(image_label_overlay)
     ax3.imshow(image)
+
     for region in regionprops(label_image):
-        if region.area < 10:
+        if region.area < 50:
             continue
-        areaList.append(region.area)
+        areaList.append(region.equivalent_diameter)
         minr, minc, maxr, maxc = region.bbox
         rect = mpatches.Rectangle((minc, minr), maxc - minc, maxr - minr,
                                    fill=False, edgecolor='red', linewidth=2)
@@ -58,10 +60,12 @@ for filepath in glob.iglob(sys.argv[1] + '/*predict*.png'):
         bx = (minc, maxc, maxc, minc, minc)
         by = (minr, minr, maxr, maxr, minr)
         ax1.plot(bx, by, '-b', linewidth=2.5)
+
     plt.draw()
 
-    bins = np.arange(0, 6000, 500)  # fixed bin size
+    bins = np.arange(0, 100, 10)  # fixed bin size
     ax2.hist(map(int, areaList), bins=bins, alpha=0.5)
+    ax2.set_title(str(len(areaList)))
     #ax2.hist(map(float, orientationList),bins=np.arange(-2, 2, 0.8))
     plt.pause(0.001)
     ax1.clear()
