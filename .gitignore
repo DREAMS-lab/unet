@@ -7,6 +7,8 @@ temp/
 coco_dataset/
 pycocotools/
 
+aug/
+
 *.hdf5
 # Byte-compiled / optimized / DLL files
 __pycache__/
