@@ -3,7 +3,8 @@ from lxml import etree
 import numpy as np
 from PIL import Image, ImageDraw
 import matplotlib.pyplot as plt
-
+import pickle
+import scipy.misc
 
 class polygonReader(object):
     def __init__(self):
@@ -40,11 +41,28 @@ class polygonReader(object):
         for file, mask in masks.iteritems():
             plt.imsave(file.split('.')[0]+'.jpg', mask, cmap="gray")
 
+    def generateMask2(self, (width, height)=(400,400), resize=(384,384)):
+        mask_dict = dict()
+        for obj, polygons in self.data.iteritems():
+            masks = np.zeros((len(polygons), resize[0], resize[1]))
+            for i,poly in enumerate(polygons):
+                img = Image.new('L', (width, height), 0)
+                ImageDraw.Draw(img).polygon(poly, outline=1, fill=1)
+                mask = np.array(img)*255
+                mask = scipy.misc.imresize(mask, resize)
+                masks[i,:,:] = mask
+            mask_dict[obj] = masks # for visualization purpose
+        return mask_dict
+
 
 if __name__ == "__main__":
     key = "1_2.xml"
     polygon = polygonReader()
     print(polygon.data[key])
     print(len(polygon.data[key]))
-    masks = polygon.generateMask()
-    polygon.saveMask()
+    #masks = polygon.generateMask()
+    #polygon.saveMask()
+    masks = polygon.generateMask2()
+    print(masks[key].shape)
+    with open('annotations.pickle', 'wb') as handle:
+        pickle.dump(masks, handle, protocol=pickle.HIGHEST_PROTOCOL)
